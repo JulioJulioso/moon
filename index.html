@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget de la Luna</title>
+    <style>
+        body {
+            background-color: transparent;
+            position: absolute;
+            left: -8px;
+            top: 3px;
+        }
+
+        .titulo {
+            font-family: serif;
+            font-weight: bold;
+            font-size: 17.5px;
+            height: 38px;
+            color: rgb(58, 58, 58);
+        }
+
+        #contain_moon {
+            background-color: transparent;
+            color: gray;
+            text-align: center;
+            font-size: 30px;
+            height: 100%;
+        }
+
+        .imagen_luna {
+            height: 103px;
+            transform: scale(-1);
+            filter: drop-shadow(0 0 15px rgb(255, 224, 66));
+            padding-top: 16px;
+        }
+
+        .luna_estado {
+            width: 100%;
+            height: 18px;
+            font-size: 14.4px;
+            color: rgb(10, 10, 10);
+        }
+
+        .descripcion {
+            color: rgb(10, 10, 10);
+            font-size: 11.52px;
+        }
+    </style>
+</head>
+<body>
+    <div id="contain_moon">
+        <div class="titulo">🌘 Lunita hoy 🌒</div>
+        <div class="imagen_luna"></div>
+        <div class="luna_estado">.</div>
+        <div class="descripcion">.</div>
+    </div>
+
+    <script>
+        var dia_actual = new Date().getDate();
+        var mes_actual = new Date().getMonth() + 1; // se le suma 1 porque parte desde 0
+        var ano_actual = new Date().getFullYear(); 
+        var LDZ = new Date(ano_actual, mes_actual - 1, 1) / 1000;
+
+        var id_luna = document.querySelectorAll("#contain_moon div");
+        var peticion_a_la_api = new XMLHttpRequest();
+        var url_api = "https://www.icalendar37.net/lunar/api/?lang=es&month=" + mes_actual + "&year=" + ano_actual + "&size=100&texturize=true&lightColor=rgb(219,219,219)&shadeColor=rgb(49,49,49)&LDZ=" + LDZ;
+
+        peticion_a_la_api.onreadystatechange = function(){
+            if(peticion_a_la_api.readyState == 4 && peticion_a_la_api.status == 200) {
+                var b = JSON.parse(peticion_a_la_api.responseText);
+                id_luna[1].innerHTML = b.phase[dia_actual].svg;
+                if (typeof moon_widget_loaded == "function") moon_widget_loaded(b);
+                id_luna[2].innerHTML = b.phase[dia_actual].npWidget;
+                id_luna[3].innerHTML = "Próxima luna llena<br>" + b.nextFullMoon;
+            }
+        };
+
+        peticion_a_la_api.open("GET", url_api, true);
+        peticion_a_la_api.send();
+    </script>
+</body>
+</html>
